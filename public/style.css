@@ -31,14 +31,16 @@ body {
   padding: 10px 10px 10px 5px;
   -webkit-app-region: drag;
 }
-
-#NavBar a {
+#NavBar a{
   font-weight: bold;
   color: #fff;
-  float: right;
   padding-left: 10px;
   text-decoration: none;
   -webkit-app-region: none;
+}
+
+#NavBar #controls a {
+  float: right;
 }
 #NavBar *{
   -webkit-app-region: none;
@@ -52,6 +54,20 @@ body {
   background: none;
   color: white;
   width:20%;
+}
+
+#NavBar select {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 3px dashed lightblue;
+  background: none;
+  color: white;
+  width:20%;
+}
+
+#NavBar option{
+  background:#2c3e50;
 }
 
 textarea:focus,
