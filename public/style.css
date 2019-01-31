@@ -1,0 +1,57 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+#app {
+  background: #f1ea99;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0px 0px 5px 5px;
+}
+
+#app #home .editor .CodeMirror {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+  width: 100vw;
+  height: 90vh;
+}
+
+.CodeMirror {
+  height: 100%;
+}
+
+#NavBar {
+  height: 20px;
+  background: #2c3e50;
+  border-radius: 5px 5px 0px 0px;
+  padding: 10px 10px 10px 10px;
+  -webkit-app-region: drag;
+}
+
+#NavBar a {
+  font-weight: bold;
+  color: #fff;
+  float: right;
+  padding-left: 10px;
+  text-decoration: none;
+  -webkit-app-region: none;
+}
+#NavBar *{
+  -webkit-app-region: none;
+}
+#NavBar input {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 3px dashed lightblue;
+  background: none;
+  color: white;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+}
