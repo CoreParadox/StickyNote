@@ -6,8 +6,9 @@ body {
 #app {
   background: #f1ea99;
   width: 100vw;
-  height: 100vh;
-  border-radius: 0px 0px 5px 5px;
+  height: 98vh;
+  margin-top:5px;
+  border-radius: 5px;
 }
 
 #app #home .editor .CodeMirror {
@@ -16,7 +17,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   width: 100vw;
-  height: 90vh;
+  height: 88vh;
 }
 
 .CodeMirror {
@@ -27,7 +28,7 @@ body {
   height: 20px;
   background: #2c3e50;
   border-radius: 5px 5px 0px 0px;
-  padding: 10px 10px 10px 10px;
+  padding: 10px 10px 10px 5px;
   -webkit-app-region: drag;
 }
 
@@ -42,6 +43,7 @@ body {
 #NavBar *{
   -webkit-app-region: none;
 }
+
 #NavBar input {
   border-top: none;
   border-left: none;
@@ -49,6 +51,7 @@ body {
   border-bottom: 3px dashed lightblue;
   background: none;
   color: white;
+  width:20%;
 }
 
 textarea:focus,

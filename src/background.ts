@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, remote } from 'electron'
 import {
   createProtocol,
   installVueDevtools
@@ -16,10 +16,11 @@ protocol.registerStandardSchemes(['app'], { secure: true })
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({ 
+    minWidth:230,
     width:300,
     height:400,
     minHeight:400,
-    autoHideMenuBar: true,
+    autoHideMenuBar: true, 
     transparent: true, 
     frame: false,
     resizable:true
@@ -39,6 +40,7 @@ function createWindow () {
     win = null
   })
 }
+
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
