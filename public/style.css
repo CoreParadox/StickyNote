@@ -54,23 +54,32 @@ body {
   background: none;
   color: white;
   width:20%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #NavBar select {
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  border-bottom: 3px dashed lightblue;
-  background: none;
+  border:none;
+  background: #2c3e50;
   color: white;
+  border-bottom: 3px solid lightblue;
   width:20%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  left: 0;
 }
 
 #NavBar option{
+  border:none;
   background:#2c3e50;
+  outline: none;
 }
 
-textarea:focus,
-input:focus {
+#NavBar textarea:focus,
+#NavBar input:focus,
+#NavBar select:focus,
+#NavBar option:focus{
   outline: none;
 }

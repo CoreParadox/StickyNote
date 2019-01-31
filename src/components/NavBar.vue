@@ -83,8 +83,9 @@ export default class NavBar extends Vue {
 
   newNote(){
     let FileName = `${Date.now()}.md`
-    fs.writeFile(path.join(new Configuration().notePath,FileName),"# Welcome to your new note!\n","",_=>{
+    fs.writeFile(path.join(new Configuration().notePath,FileName),"# Welcome to your new note!\nLet's write something awesome.","",_=>{
       this.SelectedFile = FileName;
+      this.fileName = FileName;
       this.$root.$emit("fileChange", this.SelectedFile);
     });
   }

@@ -43,8 +43,8 @@ export default class Editor extends Vue {
     console.log("this.filePath: " + this.filePath);
     readFile(this.filePath(), { encoding: "utf8" }, (e: any, d: any) => {
       console.log(e);
-      this.configureEditor(d);
       this.emitFileLoaded();
+      this.configureEditor(d);
     });
   }
 
@@ -97,13 +97,15 @@ export default class Editor extends Vue {
   }
 
   private configureEditor(defaultValue) {
+    console.log(this.config.editorConfig)
+    console.log(defaultValue)
     if (!this.internalEditor) {
       this.internalEditor = HyperMD.fromTextArea(
         document.getElementById("input-area"),
         this.config.editorConfig
       );
     }
-    this.internalEditor.setValue(defaultValue);
+    this.internalEditor.setValue(defaultValue.toString());
     this.internalEditor.markClean();
     this.StartSaveWatch();
   }
