@@ -1,0 +1,30 @@
+{
+  "name": "stickynoteapp",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "electron:build": "vue-cli-service electron:build",
+    "electron:serve": "vue-cli-service electron:serve",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "codemirror": "^5.43.0",
+    "hypermd": "^0.3.11",
+    "vue": "^2.5.21",
+    "vue-class-component": "^6.0.0",
+    "vue-property-decorator": "^7.0.0",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-typescript": "^3.3.0",
+    "@vue/cli-service": "^3.3.0",
+    "electron": "^4.0.0",
+    "typescript": "^3.0.0",
+    "vue-cli-plugin-electron-builder": "^1.0.0-rc.10",
+    "vue-template-compiler": "^2.5.21"
+  },
+  "main": "background.js"
+}
