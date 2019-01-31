@@ -1,9 +1,11 @@
 <template>
   <div id="NavBar">
-    <a v-on:click="close()"><i class="fas fa-window-close"></i></a>
-    <!-- <a v-on:click="restore()"><i class="fas fa-window-restore"></i></a> -->
-    <a v-on:click="minimize()"><i class="fas fa-minus-square"></i></a>
-    <a v-on:click="pin()"><i class="fas fa-thumbtack"></i></a>
+    <div id="controls">
+      <a v-on:click="close()"><i class="fas fa-window-close"></i></a>
+      <!-- <a v-on:click="restore()"><i class="fas fa-window-restore"></i></a> -->
+      <a v-on:click="minimize()"><i class="fas fa-minus-square"></i></a>
+      <a v-on:click="pin()"><i class="fas fa-thumbtack"></i></a>
+    </div>
     <input v-on:change="updateFileName" v-model="fileName" type="text" name="fileName">
     <select
       v-on:change="changeFile"
@@ -14,12 +16,18 @@
     >
       <option v-for="file in Files()" :value="file.value" :key="file.id" :id=file.id >{{ file.value }}</option>
     </select>
+    <a v-on:click="newNote()"><i class="fas fa-file-medical"></i></a>
+    <a v-on:click="deleteNote()"><i class="fas fa-trash"></i></a>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import * as fs from "fs";
+import * as path from "path";
+import Configuration from '@/utility/Configuration';
+const remote = require('electron').remote;
+
 @Component
 export default class NavBar extends Vue {
   private fileName: string = "";
@@ -64,16 +72,30 @@ export default class NavBar extends Vue {
     w.setAlwaysOnTop(!w.isAlwaysOnTop())
   }
   restore(){
-    const remote = require('electron').remote;
-    let w = remote.getCurrentWindow();
-    this.isMaximized ? w.unmaximize() : w.maximize();
+    this.isMaximized ? remote.getCurrentWindow().unmaximize() : remote.getCurrentWindow().maximize();
     this.isMaximized = !this.isMaximized;
   }
 
   minimize(){
-    const remote = require('electron').remote;
-    let w = remote.getCurrentWindow();
-    w.minimize();
+    remote.getCurrentWindow().minimize();
+  }
+  
+
+  newNote(){
+    let FileName = `${Date.now()}.md`
+    fs.writeFile(path.join(new Configuration().notePath,FileName),"# Welcome to your new note!\n","",_=>{
+      this.SelectedFile = FileName;
+      this.$root.$emit("fileChange", this.SelectedFile);
+    });
+  }
+
+  deleteNote(){
+    confirm(`This will permantly delete "${this.SelectedFile}". Continue?`);
+    fs.unlink(path.join(new Configuration().notePath,this.SelectedFile), _ =>{
+      this.SelectedFile = this.Files()[0].value;
+      this.fileName = this.Files()[0].value;
+      this.changeFile();
+    });
   }
 }
 </script>
