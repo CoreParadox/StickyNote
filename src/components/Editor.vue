@@ -6,98 +6,110 @@
 
 <script lang="ts">
 const HyperMD = require("hypermd");
-import * as fs from "fs";
+import { readFile, writeFile, rename } from "fs";
 import * as path from "path";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import "hypermd/theme/hypermd-light.css";
 import "@/theme/sticky.css";
-import { error } from 'util';
-import { clearInterval } from 'timers';
-const basePath = "notes";
-    
+import Configuration from "../utility/Configuration";
+import { clearInterval } from "timers";
+
 @Component
 export default class Editor extends Vue {
   private internalEditor: any;
   private saveWatcher: any;
-  private file = "note.md";
-  private get filePath(){
-    return path.join(basePath,this.file);
-  } 
-  
+  private config;
+  private file;
+
+  private filePath() {
+    return path.join(this.config.notePath, this.file);
+  }
+
   mounted() {
-    this.loadFile(this.file);
-    this.registerEvents();
+    console.log("Mounted");
+    Configuration.getConfig()
+      .then(c => {
+        this.config = c;
+        this.loadFile(c.defaultNote);
+        this.registerEvents();
+      })
+      .catch(console.log);
   }
 
-  loadFile(file){
-      console.log(this.file)
-      this.file = file;
-      fs.readFile(this.filePath,{encoding:"utf8"},(e:any,d:any) =>{
-        this.configureEditor(d);
-        this.emitFileLoaded();
-    })
+  loadFile(file) {
+    console.log("fileName: " + file);
+    this.file = file;
+    console.log("this.file: " + this.file);
+    console.log("this.filePath: " + this.filePath);
+    readFile(this.filePath(), { encoding: "utf8" }, (e: any, d: any) => {
+      console.log(e);
+      this.configureEditor(d);
+      this.emitFileLoaded();
+    });
   }
 
-  emitFileLoaded(){
-    this.$root.$emit("fileLoaded", path.parse(this.filePath).name)
+  emitFileLoaded() {
+    console.log(this.filePath());
+    this.$root.$emit("fileLoaded", path.parse(this.filePath()).name);
   }
 
-  registerEvents(){
-    this.$root.$on("fileNameUpdated", (e:string)=>{
-      fs.rename(this.filePath, path.join(path.parse(basePath).dir,e+".md"), (e:Error) => console.log(e));
-    })
-    this.$root.$on("fileChange", (f:string) => this.loadFile(f));
-    this.$root.$on("closing", (_:any) => this.Save(e =>{
-      this.$emit("finished")
-    }));
+  registerEvents() {
+    this.registerRootEvent("fileNameUpdated", (f: string) => {
+      rename(
+        this.filePath(),
+        path.join(path.parse(this.filePath()).dir, f + ".md"),
+        (e: Error) => {
+          this.file = f + ".md";
+          this.emitFileLoaded();
+        }
+      );
+    });
+    this.registerRootEvent("fileChange", (f: string) => {
+      this.loadFile(f);
+    });
+
+    this.registerRootEvent("closing", (_: any) =>
+      this.Save(e => {
+        this.$emit("finished");
+      })
+    );
   }
 
-  destroyed(){
-    console.log("Destroying")
+  registerRootEvent(eventName, callback) {
+    this.$root.$on(eventName, callback);
+  }
+
+  destroyed() {
     this.internalEditor = null;
     clearInterval(this.saveWatcher);
-    console.log("Destroyed")
   }
 
-  private Save(handler:((err:Error) => void)){
-    fs.writeFile(this.filePath, this.internalEditor.getValue(), handler);
+  private Save(handler: ((err: Error) => void)) {
+    writeFile(this.filePath(), this.internalEditor.getValue(), handler);
   }
 
-  private StartSaveWatch(){
-    if(this.saveWatcher) clearInterval(this.saveWatcher)
-    this.saveWatcher = setInterval((_:any) =>{
-      //console.log(`Is Clean:${this.isClean()}`);
-      if(!this.internalEditor.isClean()){
-        this.Save(e =>{
-          console.log(e)
-          console.log(`Saved to ${this.filePath}`);
-          this.internalEditor.markClean();
-        })
-      }
-    },3000)   
+  private StartSaveWatch() {
+    if (this.saveWatcher) clearInterval(this.saveWatcher);
+    this.saveWatcher = setInterval(_ => {
+      if (!this.internalEditor.isClean())
+        this.Save(_ => this.internalEditor.markClean());
+    }, 5000);
   }
 
-  private configureEditor(defaultValue){
-      if(!this.internalEditor){
-        var myTextarea = document.getElementById("input-area"); 
-        this.internalEditor = HyperMD.fromTextArea(<HTMLTextAreaElement>myTextarea, {
-          lineNumbers: false,
-          tabSize: 4,
-          theme: "sticky hypermd-light",
-          mode: {
-            name: "hypermd",
-            hashtag: true
-          },
-          
-        });
-      }
-      this.internalEditor.setValue(defaultValue)
-      this.internalEditor.markClean(); 
-      this.StartSaveWatch()
+  private configureEditor(defaultValue) {
+    if (!this.internalEditor) {
+      this.internalEditor = HyperMD.fromTextArea(
+        document.getElementById("input-area"),
+        this.config.editorConfig
+      );
+    }
+    this.internalEditor.setValue(defaultValue);
+    this.internalEditor.markClean();
+    this.StartSaveWatch();
   }
 
-  private isClean(){
-    return this.internalEditor.isClean()
+  private isClean() {
+    return this.internalEditor.isClean();
   }
 }
 </script>
