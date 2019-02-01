@@ -19,7 +19,7 @@ import VueEmitter from "@/utility/VueEmitter"
 export default class Editor extends VueEmitter {
   private internalEditor: any;
   private saveWatcher: any;
-  private config:Configuration;
+  private config:Configuration = new Configuration();
   private file;
 
   private filePath() {

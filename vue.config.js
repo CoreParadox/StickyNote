@@ -7,11 +7,7 @@ module.exports = {
                     "win": {
                         "icon": __dirname + '/src/assets/icon.ico',
                         "target": "NSIS"
-                    },
-                    "win": {
-                        "icon": __dirname + '/src/assets/icon.ico',
-                        "target": "NSIS"
-                    },
+                    }
             }
         }
     }
