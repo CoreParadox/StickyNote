@@ -6,7 +6,7 @@
 
 <script lang="ts">
 const HyperMD = require("hypermd");
-import { readFile, writeFile, rename } from "fs";
+import { readFile, writeFile, rename, exists, mkdir } from "fs";
 import { clearInterval } from "timers";
 import { Component, Prop, Vue } from "vue-property-decorator";
 import * as path from "path";
@@ -19,7 +19,7 @@ import VueEmitter from "@/utility/VueEmitter"
 export default class Editor extends VueEmitter {
   private internalEditor: any;
   private saveWatcher: any;
-  private config;
+  private config:Configuration;
   private file;
 
   private filePath() {
@@ -62,6 +62,8 @@ export default class Editor extends VueEmitter {
     this.registerRootEvent("fileChange", this.loadFile);
     this.registerRootEvent("closing",  _ => this.Save(_ => this.$emit("finished")));
   }
+
+
 
   registerRootEvent(eventName, callback) {
     this.$root.$on(eventName, callback);
