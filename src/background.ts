@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, Config } from 'electron'
+import { app, protocol, BrowserWindow, Config, screen } from 'electron'
 import {
   createProtocol,
   installVueDevtools
@@ -107,6 +107,21 @@ app.on('ready', async () => {
     createWindow()
   })
 })
+
+var locked = app.requestSingleInstanceLock();
+if (!locked) {
+  app.quit()
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (win) {
+      if (win.isMinimized()) win.restore()
+      let mousePos = screen.getCursorScreenPoint();
+      win.setPosition(mousePos.x,mousePos.y)
+      win.focus()
+    }
+  })
+}
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
