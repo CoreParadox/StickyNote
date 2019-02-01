@@ -6,7 +6,10 @@ import {
   installVueDevtools
 } from 'vue-cli-plugin-electron-builder/lib'
 const isDevelopment = process.env.NODE_ENV !== 'production'
-
+const nativeImage = require('electron').nativeImage;
+    var image = nativeImage.createFromPath(__dirname + '/assets/icon.png'); 
+    image.setTemplateImage(true);
+    console.log(__dirname + '/assets/icon.png')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -23,7 +26,8 @@ function createWindow () {
     autoHideMenuBar: true, 
     transparent: true, 
     frame: false,
-    resizable:true
+    resizable:true,
+    icon: image
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

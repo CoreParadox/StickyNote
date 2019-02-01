@@ -7,15 +7,16 @@
 <script lang="ts">
 const HyperMD = require("hypermd");
 import { readFile, writeFile, rename } from "fs";
-import * as path from "path";
+import { clearInterval } from "timers";
 import { Component, Prop, Vue } from "vue-property-decorator";
+import * as path from "path";
 import "hypermd/theme/hypermd-light.css";
 import "@/theme/sticky.css";
-import Configuration from "../utility/Configuration";
-import { clearInterval } from "timers";
+import Configuration from "@/utility/Configuration";
+import VueEmitter from "@/utility/VueEmitter"
 
 @Component
-export default class Editor extends Vue {
+export default class Editor extends VueEmitter {
   private internalEditor: any;
   private saveWatcher: any;
   private config;
@@ -26,35 +27,29 @@ export default class Editor extends Vue {
   }
 
   mounted() {
-    console.log("Mounted");
     Configuration.getConfig()
       .then(c => {
         this.config = c;
         this.loadFile(c.defaultNote);
         this.registerEvents();
-      })
-      .catch(console.log);
+      }).catch(console.log);
   }
 
   loadFile(file) {
-    console.log("fileName: " + file);
     this.file = file;
-    console.log("this.file: " + this.file);
-    console.log("this.filePath: " + this.filePath);
     readFile(this.filePath(), { encoding: "utf8" }, (e: any, d: any) => {
-      console.log(e);
       this.emitFileLoaded();
       this.configureEditor(d);
     });
+    
   }
 
   emitFileLoaded() {
-    console.log(this.filePath());
-    this.$root.$emit("fileLoaded", path.parse(this.filePath()).name);
+    this.rootEmit("fileLoaded", path.parse(this.filePath()).name);
   }
 
   registerEvents() {
-    this.registerRootEvent("fileNameUpdated", (f: string) => {
+    this.registerRootEvent("fileNameUpdated", f => {
       rename(
         this.filePath(),
         path.join(path.parse(this.filePath()).dir, f + ".md"),
@@ -64,15 +59,8 @@ export default class Editor extends Vue {
         }
       );
     });
-    this.registerRootEvent("fileChange", (f: string) => {
-      this.loadFile(f);
-    });
-
-    this.registerRootEvent("closing", (_: any) =>
-      this.Save(e => {
-        this.$emit("finished");
-      })
-    );
+    this.registerRootEvent("fileChange", this.loadFile);
+    this.registerRootEvent("closing",  _ => this.Save(_ => this.$emit("finished")));
   }
 
   registerRootEvent(eventName, callback) {
@@ -97,21 +85,10 @@ export default class Editor extends Vue {
   }
 
   private configureEditor(defaultValue) {
-    console.log(this.config.editorConfig)
-    console.log(defaultValue)
-    if (!this.internalEditor) {
-      this.internalEditor = HyperMD.fromTextArea(
-        document.getElementById("input-area"),
-        this.config.editorConfig
-      );
-    }
+    if(!this.internalEditor) this.internalEditor = HyperMD.fromTextArea(document.getElementById("input-area"),this.config.editorConfig);
     this.internalEditor.setValue(defaultValue.toString());
     this.internalEditor.markClean();
     this.StartSaveWatch();
-  }
-
-  private isClean() {
-    return this.internalEditor.isClean();
   }
 }
 </script>
