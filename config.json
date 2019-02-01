@@ -1,1 +1,12 @@
-{"notePath":"notes","editorConfig":{"lineNumbers":false,"tabSize":4,"theme":"sticky hypermd-light","mode":{"name":"hypermd","hashtag":true}}}
+{
+    "notePath": "notes",
+    "editorConfig": {
+        "lineNumbers": false,
+        "tabSize": 4,
+        "theme": "sticky hypermd-light",
+        "mode": {
+            "name": "hypermd",
+            "hashtag": true
+        }
+    }
+}

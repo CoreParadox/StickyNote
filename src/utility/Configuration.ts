@@ -18,12 +18,20 @@ export default class Configuration {
         var stashed = new Configuration
         return new Promise<Configuration>((r,e) =>{
             access("./config.json", fsConstants.F_OK, (err) => {
-                if(err) writeFile("./config.json",JSON.stringify(stashed),ex => e(ex))
+                if(err) writeFile("./config.json",JSON.stringify(stashed,null,"\t"),ex =>{
+                    if(ex) e(ex)
+                    this.readFile(stashed,r);
+                })
+                this.readFile(stashed,r);
             });
-            readFile("./config.json",(e,b)=>{
-                var obj = Object.assign(stashed,(b.toJSON()));
-                r(obj);
-            })
+            
+        })
+    }
+    
+    private static readFile(stashed:Configuration, resolve){
+        readFile("./config.json",(e,b)=>{
+            var obj = Object.assign(stashed,(b.toJSON()));
+            resolve(obj);
         })
     }
 
