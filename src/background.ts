@@ -1,33 +1,30 @@
 'use strict'
 
-import { app, protocol, BrowserWindow} from 'electron'
+import { app, protocol, BrowserWindow, Config } from 'electron'
 import {
   createProtocol,
   installVueDevtools
 } from 'vue-cli-plugin-electron-builder/lib'
+import Configuration from './utility/Configuration';
 const isDevelopment = process.env.NODE_ENV !== 'production'
-const nativeImage = require('electron').nativeImage;
-    // var image = nativeImage.createFromPath(__dirname + '/assets/icon.png'); 
-    // image.setTemplateImage(true);
-    // console.log(__dirname + '/assets/icon.png')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 
 // Standard scheme must be registered before the app is ready
 protocol.registerStandardSchemes(['app'], { secure: true })
-function createWindow () {
+function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({ 
-    minWidth:230,
-    width:400,
-    height:400,
-    minHeight:400,
-    autoHideMenuBar: true, 
-    transparent: true, 
+  win = new BrowserWindow({
+    minWidth: 230,
+    width: 400,
+    height: 400,
+    minHeight: 400,
+    autoHideMenuBar: true,
+    transparent: true,
     frame: false,
-    resizable:true
-  })
+    resizable: true
+  });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -43,7 +40,42 @@ function createWindow () {
     win = null
   })
 }
+import * as fs from 'fs';
+import * as path from 'path';
+function ensureExists(callback) {
+  Configuration.getConfig().then(c => {
+    fs.exists(c.notePath, folderExists => {
+      if (!folderExists) {
+        createDirectory(c, _ => {
+          createDefault(c, _ => callback());
+        })
+      } else {
+        fs.exists(path.join(c.notePath, c.defaultNote), fileExists => {
+          if (!fileExists) createDefault(c, _ => callback())
+          else callback();
+        })
+      };
+    })
+  });
+}
 
+function createDirectory(config: Configuration, callback) {
+  fs.mkdir(config.notePath, e => {
+    if (e){
+      console.log(e);
+      alert(e); 
+      process.exit();
+    }else{ 
+      callback(e);
+    }
+  });
+}
+
+function createDefault(config: Configuration, callback) {
+  fs.writeFile(path.join(config.notePath, config.defaultNote), "# Welcome to your new note!\nLet's write something awesome.", e => {
+    callback(e)
+  })
+}
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -70,7 +102,10 @@ app.on('ready', async () => {
     // Install Vue Devtools
     await installVueDevtools()
   }
-  createWindow()
+
+  ensureExists(function(){
+    createWindow()
+  })
 })
 
 // Exit cleanly on request from parent process in development mode.
