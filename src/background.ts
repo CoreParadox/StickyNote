@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, Config, screen } from 'electron'
+import { app, protocol, BrowserWindow, Config, screen, shell } from 'electron'
 import {
   createProtocol,
   installVueDevtools
@@ -39,7 +39,14 @@ function createWindow() {
   win.on('closed', () => {
     win = null
   })
+
+  win.webContents.on('new-window', function(e, url){
+    e.preventDefault();
+    shell.openExternal(url);
+ });
+
 }
+
 import * as fs from 'fs';
 import * as path from 'path';
 function ensureExists(callback) {
@@ -122,6 +129,7 @@ if (!locked) {
     }
   })
 }
+
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
