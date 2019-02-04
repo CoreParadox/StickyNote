@@ -3,8 +3,10 @@
     <NavBar> <router-link slot="controls" :to="'/'"><a><i class="fas fa-sticky-note"></i></a></router-link></NavBar>
     <form>
         <label for="notePath" class="btn">Select Note Path:</label>
-        <br/><input type="text" readonly alt="test" style="margin-top:15px; width:90vw;" v-model="config.notePath">
         <input id="notePath" ref="notePath" v-on:change="noteDirChange" webkitdirectory style="visibility:hidden;" type="file">
+        <br>
+        <input type="text" readonly alt="test" style="margin-top:15px; width:80vw;" v-model="config.notePath">
+        <span style="display:inline-block; margin-left:10px; cursor:pointer;" class="btn" v-on:click="openNoteDir">Open</span>
         <br/>
       <label for="defaultNote">Default Note:</label>
           <select
@@ -46,6 +48,7 @@
 </template>
 
 <script lang="ts">
+import {shell} from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
 import NavBar from '@/components/NavBar.vue'
 import Configuration from '@/utility/Configuration';
@@ -64,6 +67,9 @@ export default class Settings extends Vue {
     });
   }
 
+  openNoteDir(){
+    shell.openItem(this.config.notePath)
+  }
   mounted(){
     Configuration.getConfig().then(c =>{
       this.config = c;

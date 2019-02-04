@@ -1,4 +1,4 @@
-import { access, writeFile, constants as fsConstants, readFile } from 'fs';
+import {pathExists, writeFile, ensureDir, readFile} from "fs-extra"
 import {join} from "path";
 import { remote } from 'electron';
 const configPath = join(remote.app.getPath('userData'), "config.json")
@@ -19,14 +19,18 @@ export default class Configuration {
     static getConfig(){
         var stashed = new Configuration()
         return new Promise<Configuration>((r,e) =>{
-            access(configPath, fsConstants.F_OK, (err) => {
-                if(err) writeFile(configPath,JSON.stringify(stashed,null,"\t"),ex =>{
-                    if(ex) e(ex)
-                    this.readFile(stashed,r);
+            pathExists(configPath, (err, exists) =>{
+                if(err) e(err);
+                if(!err && !exists) writeFile(configPath,JSON.stringify(stashed,null,"\t"),err =>{
+                    if(err) e(err)
+                    this.readFile(stashed,c =>{
+                        ensureDir(c.notePath).then(e=>r(c))
+                    });
                 })
-                this.readFile(stashed,r);
-            });
-            
+                else this.readFile(stashed,c =>{
+                    ensureDir(c.notePath).then(e=>r(c))
+                });
+            })
         })
     }
     
@@ -38,14 +42,10 @@ export default class Configuration {
     }
 
     saveConfig(callback?){
-        //TODO: This is a hack, but vue adds some junk data when binding
-        delete (<any>this).data
-        delete (<any>this).type
-        console.log(JSON.stringify(this,null,"\t"))
         writeFile(configPath,JSON.stringify(this, null, "\t"),(e) => {
-            if(callback) callback(e);
-            else console.log(e);
-        })
+            if(callback) callback
+            else console.log(e)
+        });
     }
 }
 

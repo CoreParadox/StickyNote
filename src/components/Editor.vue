@@ -19,9 +19,8 @@ import VueEmitter from "@/utility/VueEmitter"
 export default class Editor extends VueEmitter {
   private internalEditor: any;
   private saveWatcher: any;
-  private config:Configuration = new Configuration();
+  private config;
   private file;
-
   private filePath() {
     return path.join(this.config.notePath, this.file);
   }
@@ -33,6 +32,11 @@ export default class Editor extends VueEmitter {
         this.loadFile(c.defaultNote);
         this.registerEvents();
       }).catch(console.log);
+  }
+  destroyed() {
+    document.removeChild(document.getElementsByClassName("CodeMirror")[0])
+    this.internalEditor = null;
+    clearInterval(this.saveWatcher);
   }
 
   loadFile(file) {
@@ -67,10 +71,7 @@ export default class Editor extends VueEmitter {
     this.$root.$on(eventName, callback);
   }
 
-  destroyed() {
-    this.internalEditor = null;
-    clearInterval(this.saveWatcher);
-  }
+
 
   private Save(handler: ((err: Error) => void)) {
     writeFile(this.filePath(), this.internalEditor.getValue(), handler);
@@ -84,7 +85,7 @@ export default class Editor extends VueEmitter {
     }, 5000);
   }
 
-  private configureEditor(defaultValue) {
+  private configureEditor(defaultValue = "") {
     if(!this.internalEditor) this.internalEditor = HyperMD.fromTextArea(document.getElementById("input-area"),this.config.editorConfig);
     this.internalEditor.setValue(defaultValue.toString());
     this.internalEditor.markClean();

@@ -47,42 +47,6 @@ function createWindow() {
 
 }
 
-import * as fs from 'fs';
-import * as path from 'path';
-function ensureExists(callback) {
-  Configuration.getConfig().then(c => {
-    fs.exists(c.notePath, folderExists => {
-      if (!folderExists) {
-        createDirectory(c, _ => {
-          createDefault(c, _ => callback());
-        })
-      } else {
-        fs.exists(path.join(c.notePath, c.defaultNote), fileExists => {
-          if (!fileExists) createDefault(c, _ => callback())
-          else callback();
-        })
-      };
-    })
-  });
-}
-
-function createDirectory(config: Configuration, callback) {
-  fs.mkdir(config.notePath, e => {
-    if (e){
-      console.log(e);
-      alert(e); 
-      process.exit();
-    }else{ 
-      callback(e);
-    }
-  });
-}
-
-function createDefault(config: Configuration, callback) {
-  fs.writeFile(path.join(config.notePath, config.defaultNote), "# Welcome to your new note!\nLet's write something awesome.", e => {
-    callback(e)
-  })
-}
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -109,10 +73,7 @@ app.on('ready', async () => {
     // Install Vue Devtools
     await installVueDevtools()
   }
-
-  ensureExists(function(){
-    createWindow()
-  })
+  createWindow();
 })
 
 var locked = app.requestSingleInstanceLock();
