@@ -11,7 +11,7 @@ body {
   border-radius: 5px;
 }
 
-#app #home #settings  .editor .CodeMirror {
+#app #home .editor .CodeMirror {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -19,6 +19,7 @@ body {
   width: 100vw;
   height: 88vh;
 }
+
 
 .CodeMirror {
   height: 100%;
@@ -89,10 +90,21 @@ body {
   border-radius: 5px;
   color: white;
   padding: 5px;
+  margin-top:20px;
   text-align: center;
   text-decoration: none;
 }
+#settings{
+  overflow: hidden;
+}
 
-#settings #container{
+#settings form{
   padding:10px;
+}
+
+#settings form p{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100vw;
+  color:red;
 }
