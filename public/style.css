@@ -11,7 +11,7 @@ body {
   border-radius: 5px;
 }
 
-#app #home .editor .CodeMirror {
+#app #home #settings  .editor .CodeMirror {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -82,4 +82,17 @@ body {
 #NavBar select:focus,
 #NavBar option:focus{
   outline: none;
+}
+
+.btn {
+  background-color: #2c3e50; /* Green */
+  border-radius: 5px;
+  color: white;
+  padding: 5px;
+  text-align: center;
+  text-decoration: none;
+}
+
+#settings #container{
+  padding:10px;
 }

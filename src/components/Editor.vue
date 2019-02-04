@@ -45,7 +45,7 @@ export default class Editor extends VueEmitter {
   }
 
   emitFileLoaded() {
-    this.rootEmit("fileLoaded", path.parse(this.filePath()).name);
+    this.$emit("fileLoaded", path.parse(this.filePath()).name);
   }
 
   registerEvents() {
@@ -63,8 +63,6 @@ export default class Editor extends VueEmitter {
     this.registerRootEvent("closing",  _ => this.Save(_ => this.$emit("finished")));
   }
 
-
-
   registerRootEvent(eventName, callback) {
     this.$root.$on(eventName, callback);
   }
@@ -81,7 +79,7 @@ export default class Editor extends VueEmitter {
   private StartSaveWatch() {
     if (this.saveWatcher) clearInterval(this.saveWatcher);
     this.saveWatcher = setInterval(_ => {
-      if (!this.internalEditor.isClean())
+      if (this.internalEditor !== null && !this.internalEditor.isClean())
         this.Save(_ => this.internalEditor.markClean());
     }, 5000);
   }
