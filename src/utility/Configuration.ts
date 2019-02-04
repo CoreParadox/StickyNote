@@ -1,4 +1,4 @@
-import { access, writeFile, constants as fsConstants, readFile, write } from 'fs';
+import { access, writeFile, constants as fsConstants, readFile } from 'fs';
 
 
 export default class Configuration {
@@ -15,7 +15,7 @@ export default class Configuration {
     }
 
     static getConfig(){
-        var stashed = new Configuration
+        var stashed = new Configuration()
         return new Promise<Configuration>((r,e) =>{
             access("./config.json", fsConstants.F_OK, (err) => {
                 if(err) writeFile("./config.json",JSON.stringify(stashed,null,"\t"),ex =>{
@@ -30,13 +30,20 @@ export default class Configuration {
     
     private static readFile(stashed:Configuration, resolve){
         readFile("./config.json",(e,b)=>{
-            var obj = Object.assign(stashed,(b.toJSON()));
+            var obj = Object.assign(stashed,JSON.parse(b.toString()));
             resolve(obj);
         })
     }
 
-    saveConfig(callback){
-        writeFile("./config.json",JSON.stringify(this, null, "\t"),callback)
+    saveConfig(callback?){
+        //TODO: This is a hack, but vue adds some junk data when binding
+        delete (<any>this).data
+        delete (<any>this).type
+        console.log(JSON.stringify(this,null,"\t"))
+        writeFile("./config.json",JSON.stringify(this, null, "\t"),(e) => {
+            if(callback) callback(e);
+            else console.log(e);
+        })
     }
 }
 
