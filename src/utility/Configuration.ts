@@ -1,8 +1,10 @@
 import { access, writeFile, constants as fsConstants, readFile } from 'fs';
-
-
+import {join} from "path";
+import { remote } from 'electron';
+const configPath = join(remote.app.getPath('userData'), "config.json")
+const defaultNotePath = join(remote.app.getPath('userData'), "notes")
 export default class Configuration {
-    public notePath: string = "notes"
+    public notePath: string = defaultNotePath
     public defaultNote: string = "note.md"
     public editorConfig: EditorConfig = {
         lineNumbers: false,
@@ -17,8 +19,8 @@ export default class Configuration {
     static getConfig(){
         var stashed = new Configuration()
         return new Promise<Configuration>((r,e) =>{
-            access("./config.json", fsConstants.F_OK, (err) => {
-                if(err) writeFile("./config.json",JSON.stringify(stashed,null,"\t"),ex =>{
+            access(configPath, fsConstants.F_OK, (err) => {
+                if(err) writeFile(configPath,JSON.stringify(stashed,null,"\t"),ex =>{
                     if(ex) e(ex)
                     this.readFile(stashed,r);
                 })
@@ -29,7 +31,7 @@ export default class Configuration {
     }
     
     private static readFile(stashed:Configuration, resolve){
-        readFile("./config.json",(e,b)=>{
+        readFile(configPath,(e,b)=>{
             var obj = Object.assign(stashed,JSON.parse(b.toString()));
             resolve(obj);
         })
@@ -40,7 +42,7 @@ export default class Configuration {
         delete (<any>this).data
         delete (<any>this).type
         console.log(JSON.stringify(this,null,"\t"))
-        writeFile("./config.json",JSON.stringify(this, null, "\t"),(e) => {
+        writeFile(configPath,JSON.stringify(this, null, "\t"),(e) => {
             if(callback) callback(e);
             else console.log(e);
         })

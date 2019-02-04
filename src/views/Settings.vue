@@ -1,13 +1,11 @@
 <template>
 <div id="settings">
-      <NavBar> <router-link slot="controls" :to="'/'"><a><i class="fas fa-sticky-note"></i></a></router-link></NavBar>
-
-  <div id="container">
+    <NavBar> <router-link slot="controls" :to="'/'"><a><i class="fas fa-sticky-note"></i></a></router-link></NavBar>
     <form>
-      <div>
-        <label for="notePath" class="btn" >Select Note Path:</label><span style="margin-left:5px;">"{{config.notePath}}"</span>
+        <label for="notePath" class="btn">Select Note Path:</label>
+        <br/><input type="text" readonly alt="test" style="margin-top:15px; width:90vw;" v-model="config.notePath">
         <input id="notePath" ref="notePath" v-on:change="noteDirChange" webkitdirectory style="visibility:hidden;" type="file">
-      </div>
+        <br/>
       <label for="defaultNote">Default Note:</label>
           <select
       v-on:change="propChange"
@@ -44,7 +42,6 @@
         <input type="checkbox" id="hashtag" v-on:change="propChange" v-model="config.editorConfig.mode.hashtag"/>
     </label>
     </form>
-</div>
 </div>
 </template>
 
