@@ -90,21 +90,14 @@ body {
   border-radius: 5px;
   color: white;
   padding: 5px;
-  margin-top:20px;
   text-align: center;
   text-decoration: none;
 }
+
 #settings{
   overflow: hidden;
 }
 
 #settings form{
   padding:10px;
-}
-
-#settings form p{
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100vw;
-  color:red;
 }
