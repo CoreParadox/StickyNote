@@ -74,6 +74,7 @@ app.on('ready', async () => {
     await installVueDevtools()
   }
   createWindow();
+  moveWindow();
 })
 
 var locked = app.requestSingleInstanceLock();
@@ -84,12 +85,22 @@ if (!locked) {
     // Someone tried to run a second instance, we should focus our window.
     if (win) {
       if (win.isMinimized()) win.restore()
-      let mousePos = screen.getCursorScreenPoint();
-      win.setPosition(mousePos.x,mousePos.y)
+      moveWindow();
       win.focus()
     }
   })
 }
+
+function moveWindow(){
+
+  let mousePos = screen.getCursorScreenPoint();
+  let bounds = screen.getDisplayNearestPoint(mousePos).bounds;
+  let winBounds = win.getBounds();
+  let horizontalBleed = (bounds.x+bounds.width)-winBounds.width 
+  let verticalBleed = (bounds.y+bounds.height)-winBounds.height
+  win.setPosition(mousePos.x > horizontalBleed ? horizontalBleed : mousePos.x,mousePos.y > verticalBleed ? verticalBleed : mousePos.y)
+}
+
 
 
 // Exit cleanly on request from parent process in development mode.
