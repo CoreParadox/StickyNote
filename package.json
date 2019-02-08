@@ -10,6 +10,8 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "@types/chokidar": "^1.7.5",
+    "chokidar": "^2.1.0",
     "codemirror": "^5.43.0",
     "fs-extra": "^7.0.1",
     "hypermd": "^0.3.11",
@@ -20,6 +22,7 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@types/fs-extra": "^5.0.4",
     "@vue/cli-plugin-typescript": "^3.3.0",
     "@vue/cli-service": "^3.3.0",
     "electron": "^4.0.0",

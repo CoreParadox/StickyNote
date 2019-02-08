@@ -8,6 +8,7 @@
       </router-link>
       <input v-on:change="updateFileName" v-model="fileName" type="text" name="fileName">
       <select
+        v-if="notepad"
         v-on:change="changeFile"
         v-model="SelectedFile"
         id="filePicker"
@@ -38,9 +39,9 @@ import Editor from "@/components/Editor.vue"; // @ is an alias to /src
 import NavBar from "@/components/NavBar.vue";
 import { unlink, writeFile, readdirSync } from "fs";
 import * as path from "path";
+import Notepad from "@/utility/Notes";
 import Configuration from "@/utility/Configuration";
-const defaultNoteText =
-  "# Welcome to your new note!\nLet's write something awesome.";
+
 
 @Component({
   components: {
@@ -51,29 +52,31 @@ const defaultNoteText =
 export default class Home extends Vue {
   private fileName: string = "";
   private SelectedFile = "";
+  private notepad:Notepad = null;
 
   private configuration = new Configuration();
 
+
   Files() {
-    var files;
-    try {
-      files = readdirSync(this.configuration.notePath).map((v, i) => {
-        return { id: i, value: v };
-      });
-    }catch (e) {}
-    if (files && files.length == 0) {
-      this.newNote(c => {
-        this.configuration.defaultNote = c;
-        this.configuration.saveConfig();
-      });
-    }
+    var files = [{id:0,value:"unloaded"}]
+        files = this.notepad.notes.map((v,i) =>{
+            console.log(v.name);
+            return { id: i, value: v.name };
+        });
     return files;
   }
 
+  public destroyed(){
+    this.notepad.destroy();
+  }
+
   public mounted() {
-    Configuration.getConfig().then(c => {
+    Configuration.getConfig().then(c=>{
       this.configuration = c;
-    });
+      this.notepad = new Notepad(c.notePath);
+      this.notepad.LoadNotesSync();
+    })
+    
   }
 
   updateFileName() {
@@ -85,26 +88,20 @@ export default class Home extends Vue {
   }
 
   newNote(callback?) {
-    let FileName = `${Date.now()}.md`;
-    writeFile(
-      path.join(this.configuration.notePath, FileName),
-      defaultNoteText,
-      "",
-      c => {
-        this.setFileName(FileName);
+    this.notepad.CreateNote(n=>{
+        this.setFileName(n.name);
         this.changeFile();
-        if (callback) callback(FileName);
-      }
-    );
+        this.configuration.defaultNote = n.name;
+        this.configuration.saveConfig();
+        if (callback) callback(n);
+    });
   }
 
   deleteNote() {
     confirm(`This will permantly delete "${this.SelectedFile}". Continue?`);
-    unlink(path.join(this.configuration.notePath, this.SelectedFile), _ => {
-      if (this.Files().length != 0) {
-        this.setFileName(this.Files()[0].value);
-        this.changeFile();
-      }
+    this.notepad.DeleteNote(this.SelectedFile, n=>{
+          this.setFileName(n.name);
+          this.changeFile();
     });
   }
 

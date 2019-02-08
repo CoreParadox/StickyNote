@@ -25,7 +25,7 @@ function createWindow() {
     frame: false,
     resizable: true
   });
-
+  
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
@@ -92,7 +92,6 @@ if (!locked) {
 }
 
 function moveWindow(){
-
   let mousePos = screen.getCursorScreenPoint();
   let bounds = screen.getDisplayNearestPoint(mousePos).bounds;
   let winBounds = win.getBounds();

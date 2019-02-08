@@ -34,7 +34,11 @@ export default class Editor extends VueEmitter {
       }).catch(console.log);
   }
   destroyed() {
-    document.removeChild(document.getElementsByClassName("CodeMirror")[0])
+    var node = document.getElementsByClassName("CodeMirror");
+    if(node && node.length > 0){
+      console.log(node)
+      document.removeChild(node[0]);
+    }
     this.internalEditor = null;
     clearInterval(this.saveWatcher);
   }
