@@ -3,6 +3,7 @@ import Vuex, { Store } from 'vuex'
 import { readdirSync, readdir, stat, readFileSync, writeFile, writeFileSync, unlink, unlinkSync } from 'fs-extra';
 import * as path from 'path';
 import Configuration from './utility/Configuration';
+import { renameSync } from 'fs';
 
 Vue.use(Vuex)
 
@@ -37,6 +38,15 @@ export default new Vuex.Store({
     ChangeNoteName: (state, NoteName) => state.note.name = NoteName
   },
   actions: {
+    SaveNote: (state, content) =>{
+      state.commit("ChangeNoteText", content);
+      writeFileSync(state.getters.NotePath, content);
+    },
+    RenameNote: (state, name) =>{
+      console.log(name);
+      renameSync(state.getters.NotePath, path.join(state.getters.Config.notePath,name+".md"));
+      state.commit("ChangeNoteName", name+".md");
+    },
     LoadNote: (state, noteName) => {
       state.commit("ChangeNoteName", noteName);
       var content =  readFileSync(state.getters.NotePath, { encoding: "utf8" });

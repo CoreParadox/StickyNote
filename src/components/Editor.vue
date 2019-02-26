@@ -29,6 +29,7 @@ export default class Editor extends Vue {
   
   @Watch('$store.getters.Note', {deep:true})
   NoteUpdate(){
+    console.log("Changing Note.");
     this.configureEditor( this.$store.getters.Note.content);
   }
 
