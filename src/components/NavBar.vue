@@ -19,12 +19,11 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import VueEmitter from "@/utility/VueEmitter";
 const remote = require("electron").remote;
 
 @Component
-export default class NavBar extends VueEmitter {
-    private isMaximized = false;
+export default class NavBar extends Vue {
+  private isMaximized = false;
 
   private restore() {
     this.isMaximized
@@ -44,9 +43,7 @@ export default class NavBar extends VueEmitter {
   }
 
   private close() {
-    this.rootEmit("closing");
+    this.$root.$emit("closing");
   }
-
-
 }
 </script>

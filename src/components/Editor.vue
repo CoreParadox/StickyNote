@@ -8,73 +8,33 @@
 const HyperMD = require("hypermd");
 import { readFile, writeFile, rename, exists, mkdir } from "fs";
 import { clearInterval } from "timers";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import * as path from "path";
 import "hypermd/theme/hypermd-light.css";
 import "@/theme/sticky.css";
 import Configuration from "@/utility/Configuration";
-import VueEmitter from "@/utility/VueEmitter"
 
 @Component
-export default class Editor extends VueEmitter {
+export default class Editor extends Vue {
   private internalEditor: any;
   private saveWatcher: any;
-  private config;
-  private file;
-  private filePath() {
-    return path.join(this.config.notePath, this.file);
-  }
+  private config = this.$store.getters.Config
+  private filePath = () => this.$store.getters.NotePath
 
-  mounted() {
-    Configuration.getConfig()
-      .then(c => {
-        this.config = c;
-        this.loadFile(c.defaultNote);
-        this.registerEvents();
-      }).catch(console.log);
-  }
   destroyed() {
     document.removeChild(document.getElementsByClassName("CodeMirror")[0])
     this.internalEditor = null;
     clearInterval(this.saveWatcher);
   }
-
-  loadFile(file) {
-    this.file = file;
-    readFile(this.filePath(), { encoding: "utf8" }, (e: any, d: any) => {
-      this.emitFileLoaded();
-      this.configureEditor(d);
-    });
-    
+  
+  @Watch('$store.getters.Note', {deep:true})
+  NoteUpdate(){
+    this.configureEditor( this.$store.getters.Note.content);
   }
 
-  emitFileLoaded() {
-    this.$emit("fileLoaded", path.parse(this.filePath()).name);
-  }
-
-  registerEvents() {
-    this.registerRootEvent("fileNameUpdated", f => {
-      rename(
-        this.filePath(),
-        path.join(path.parse(this.filePath()).dir, f + ".md"),
-        (e: Error) => {
-          this.file = f + ".md";
-          this.emitFileLoaded();
-        }
-      );
-    });
-    this.registerRootEvent("fileChange", this.loadFile);
-    this.registerRootEvent("closing",  _ => this.Save(_ => this.$emit("finished")));
-  }
-
-  registerRootEvent(eventName, callback) {
-    this.$root.$on(eventName, callback);
-  }
-
-
-
+  //TODO: Update store note.content after save.
   private Save(handler: ((err: Error) => void)) {
-    writeFile(this.filePath(), this.internalEditor.getValue(), handler);
+    writeFile(this.$store.getters.NotePath, this.internalEditor.getValue(), handler);
   }
 
   private StartSaveWatch() {

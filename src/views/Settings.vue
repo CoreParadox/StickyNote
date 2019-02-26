@@ -62,18 +62,14 @@ export default class Settings extends Vue {
   private config:Configuration = new Configuration();
 
   Files() {
-    return readdirSync(this.config.notePath).map((v, i) => {
-      return { id: i, value: v };
-    });
+    return this.$store.getters.Files;
   }
 
   openNoteDir(){
     shell.openItem(this.config.notePath)
   }
   mounted(){
-    Configuration.getConfig().then(c =>{
-      this.config = c;
-    })
+    this.config = this.$store.getters.Config;
   }
   propChange(){
     this.config.saveConfig();
