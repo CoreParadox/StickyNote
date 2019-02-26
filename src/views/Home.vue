@@ -6,9 +6,8 @@
           <i class="fas fa-cog"></i>
         </a>
       </router-link>
-      <input v-on:change="updateFileName" v-model="$store.getters.Note.name" type="text" name="fileName">
+      <input v-on:change="RenameFile" type="text" name="fileName" :value="SelectedFile">
       <select
-        v-on:change="changeFile"
         v-model="SelectedFile"
         id="filePicker"
         style="margin-left:20px;"
@@ -48,20 +47,27 @@ import Configuration from "@/utility/Configuration";
 })
 export default class Home extends Vue {
   private fileName: string = this.$store.getters.Note.name;
-  private SelectedFile = this.$store.getters.Note.name;
   private configuration = this.$store.getters.Config;
   
   Files(){
     console.log("Getting List");
     return this.$store.getters.Files()
   }
-
-  updateFileName() {
-    this.$store.dispatch("LoadNote", this.fileName || "");
+  
+  set SelectedFile(value){
+    this.changeFile(value)
+  }
+  get SelectedFile(){
+    return this.$store.getters.Note.name;
   }
 
-  changeFile() {
-    this.$store.dispatch("LoadNote", this.SelectedFile || "");
+  RenameFile(e) {
+    this.$store.dispatch("RenameNote", e.target.value);
+  }
+
+  changeFile(value) {
+    console.log(value);
+    this.$store.dispatch("LoadNote", value);
   }
 
   newNote() {
@@ -76,7 +82,6 @@ export default class Home extends Vue {
 
   setFileName(fileName) {
     var rawFileName = fileName.replace(/.md$/, "");
-    this.SelectedFile = rawFileName + ".md";
     this.fileName = rawFileName;
   }
 
