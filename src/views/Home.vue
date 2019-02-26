@@ -6,7 +6,7 @@
           <i class="fas fa-cog"></i>
         </a>
       </router-link>
-      <input v-on:change="updateFileName" v-model="fileName" type="text" name="fileName">
+      <input v-on:change="updateFileName" v-model="$store.getters.Note.name" type="text" name="fileName">
       <select
         v-on:change="changeFile"
         v-model="SelectedFile"
@@ -16,10 +16,10 @@
       >
         <option
           v-for="file in Files()"
-          :value="file.value"
-          :key="file.id"
-          :id="file.id"
-        >{{ file.value }}</option>
+          :value="file"
+          :key="file"
+          :id="file"
+        >{{ file }}</option>
       </select>
       <a v-on:click="newNote()">
         <i class="fas fa-file-medical"></i>
@@ -33,14 +33,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import Editor from "@/components/Editor.vue"; // @ is an alias to /src
 import NavBar from "@/components/NavBar.vue";
 import { unlink, writeFile, readdirSync } from "fs";
 import * as path from "path";
 import Configuration from "@/utility/Configuration";
-const defaultNoteText =
-  "# Welcome to your new note!\nLet's write something awesome.";
 
 @Component({
   components: {
@@ -49,63 +47,31 @@ const defaultNoteText =
   }
 })
 export default class Home extends Vue {
-  private fileName: string = "";
-  private SelectedFile = "";
-
-  private configuration = new Configuration();
-
-  Files() {
-    var files;
-    try {
-      files = readdirSync(this.configuration.notePath).map((v, i) => {
-        return { id: i, value: v };
-      });
-    }catch (e) {}
-    if (files && files.length == 0) {
-      this.newNote(c => {
-        this.configuration.defaultNote = c;
-        this.configuration.saveConfig();
-      });
-    }
-    return files;
-  }
-
-  public mounted() {
-    Configuration.getConfig().then(c => {
-      this.configuration = c;
-    });
+  private fileName: string = this.$store.getters.Note.name;
+  private SelectedFile = this.$store.getters.Note.name;
+  private configuration = this.$store.getters.Config;
+  
+  Files(){
+    console.log("Getting List");
+    return this.$store.getters.Files()
   }
 
   updateFileName() {
-    this.$root.$emit("fileNameUpdated", this.fileName || "");
+    this.$store.dispatch("LoadNote", this.fileName || "");
   }
 
   changeFile() {
-    this.$root.$emit("fileChange", this.SelectedFile || "");
+    this.$store.dispatch("LoadNote", this.SelectedFile || "");
   }
 
-  newNote(callback?) {
-    let FileName = `${Date.now()}.md`;
-    writeFile(
-      path.join(this.configuration.notePath, FileName),
-      defaultNoteText,
-      "",
-      c => {
-        this.setFileName(FileName);
-        this.changeFile();
-        if (callback) callback(FileName);
-      }
-    );
+  newNote() {
+    this.$store.dispatch("NewNote");
   }
 
   deleteNote() {
     confirm(`This will permantly delete "${this.SelectedFile}". Continue?`);
-    unlink(path.join(this.configuration.notePath, this.SelectedFile), _ => {
-      if (this.Files().length != 0) {
-        this.setFileName(this.Files()[0].value);
-        this.changeFile();
-      }
-    });
+    this.$store.dispatch("DeleteNote");
+    this.SelectedFile = this.$store.getters.Note.name;
   }
 
   setFileName(fileName) {
@@ -115,7 +81,9 @@ export default class Home extends Vue {
   }
 
   handleClose() {
-    require("electron").remote.getCurrentWindow().close();
+    require("electron")
+      .remote.getCurrentWindow()
+      .close();
   }
 }
 </script>

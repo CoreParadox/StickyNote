@@ -1,5 +1,5 @@
-import {pathExists, writeFile, ensureDir, readFile} from "fs-extra"
-import {join} from "path";
+import { pathExists, writeFile, ensureDir, readFile, pathExistsSync, writeFileSync, ensureDirSync, readFileSync } from "fs-extra"
+import { join } from "path";
 import { remote } from 'electron';
 const configPath = join(remote.app.getPath('userData'), "config.json")
 const defaultNotePath = join(remote.app.getPath('userData'), "notes")
@@ -16,36 +16,21 @@ export default class Configuration {
         }
     }
 
-    static getConfig(){
-        var stashed = new Configuration()
-        return new Promise<Configuration>((r,e) =>{
-            pathExists(configPath, (err, exists) =>{
-                if(err) e(err);
-                if(!err && !exists) writeFile(configPath,JSON.stringify(stashed,null,"\t"),err =>{
-                    if(err) e(err)
-                    this.readFile(stashed,c =>{
-                        ensureDir(c.notePath).then(e=>r(c))
-                    });
-                })
-                else this.readFile(stashed,c =>{
-                    ensureDir(c.notePath).then(e=>r(c))
-                });
-            })
-        })
-    }
-    
-    private static readFile(stashed:Configuration, resolve){
-        readFile(configPath,(e,b)=>{
-            var obj = Object.assign(stashed,JSON.parse(b.toString()));
-            resolve(obj);
-        })
+    public static getConfig() {
+        if (!pathExistsSync(configPath)) {
+            writeFileSync(configPath, JSON.stringify(new Configuration(), null, "\t"));
+        }
+        var config = this.readFile();
+        ensureDirSync(config.notePath)
+        return config;
     }
 
-    saveConfig(callback?){
-        writeFile(configPath,JSON.stringify(this, null, "\t"),(e) => {
-            if(callback) callback
-            else console.log(e)
-        });
+    private static readFile() {
+        return Object.assign(new Configuration(), JSON.parse(readFileSync(configPath).toString()));;
+    }
+
+    public async saveConfig() {
+        await writeFile(configPath, JSON.stringify(this, null, "\t"));
     }
 }
 
