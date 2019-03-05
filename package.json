@@ -10,13 +10,16 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "@toast-ui/vue-editor": "^1.0.4",
     "codemirror": "^5.43.0",
     "fs-extra": "^7.0.1",
     "hypermd": "^0.3.11",
     "vue": "^2.5.21",
     "vue-class-component": "^6.0.0",
+    "vue-codemirror": "^4.0.6",
     "vue-property-decorator": "^7.0.0",
     "vue-router": "^3.0.1",
+    "vue-showdown": "^2.4.0",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
