@@ -27,13 +27,14 @@
         <i class="fas fa-trash"></i>
       </a>
     </NavBar>
-    <Editor v-on:finished="handleClose()" v-on:fileLoaded="setFileName"></Editor>
+    <TuiEditor v-on:finished="handleClose()" v-on:fileLoaded="setFileName"></TuiEditor>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import Editor from "@/components/Editor.vue"; // @ is an alias to /src
+//import Editor from "@/components/Editor.vue"; // @ is an alias to /src
+import TuiEditor from "@/components/TUIEditor.vue";
 import NavBar from "@/components/NavBar.vue";
 import { unlink, writeFile, readdirSync } from "fs";
 import * as path from "path";
@@ -41,7 +42,7 @@ import Configuration from "@/utility/Configuration";
 
 @Component({
   components: {
-    Editor,
+    TuiEditor,
     NavBar
   }
 })

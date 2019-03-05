@@ -11,17 +11,31 @@ body {
   border-radius: 5px;
 }
 
-#app #home .editor .CodeMirror {
+/*  .editor .tuieditor .CodeMirror .tui-editor-defaultUI */
+#app #home{
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   width: 100vw;
   height: 88vh;
+  background:transparent !important;
+  background-color:transparent !important;
+}
+
+.te-editor, .te-ww-container, .editor{
+  width: 100% !important;
+  position: absolute;
+  background:transparent !important;
+  background-color:transparent !important;
 }
 
 
-.CodeMirror {
+.te-toolbar-section, .te-preview, .te-md-splitter{
+  display: none !important;
+} 
+
+.CodeMirror .tui-editor-defaultUI{
   height: 100%;
 }
 

@@ -11,7 +11,8 @@ import { clearInterval } from "timers";
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import * as path from "path";
 import "hypermd/theme/hypermd-light.css";
-import "@/theme/sticky.css";
+import "../theme/sticky.css"
+import "../theme/dark.css"
 import Configuration from "@/utility/Configuration";
 
 @Component
@@ -21,6 +22,9 @@ export default class Editor extends Vue {
   private config = this.$store.getters.Config
   private filePath = () => this.$store.getters.NotePath
 
+  mounted(){
+    this.NoteUpdate();
+  }
   destroyed() {
     document.removeChild(document.getElementsByClassName("CodeMirror")[0])
     this.internalEditor = null;
