@@ -11,6 +11,9 @@ body {
   border-radius: 5px;
 }
 
+.cm-s-default{
+  background:transparent !important;
+}
 /*  .editor .tuieditor .CodeMirror .tui-editor-defaultUI */
 #app #home{
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
