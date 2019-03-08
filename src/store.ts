@@ -12,6 +12,7 @@ export default new Vuex.Store({
     config:Configuration.getConfig(),
     files:[],
     note:{
+      path:"",
       name:"",
       content:""
     }
@@ -26,24 +27,23 @@ export default new Vuex.Store({
     },
     NotePath: state => path.join(state.config.notePath,state.note.name),
     Note: (state,getters) => {
-      return {
-        path: getters.NotePath,
-        name:state.note.name,
-        content:state.note.content,
-      }
+        return {
+          path: getters.NotePath,
+          name:state.note.name,
+          content:state.note.content,
+        }
     }
   },
   mutations: {
     ChangeNoteText: (state, content) => state.note.content = content,
-    ChangeNoteName: (state, NoteName) => state.note.name = NoteName
+    ChangeNoteName: (state, NoteName) => state.note.name = NoteName,
+    UpdateConfig: (state, config) => state.config = config
   },
   actions: {
-    SaveNote: (state, content) =>{
-      state.commit("ChangeNoteText", content);
-      writeFileSync(state.getters.NotePath, content);
+    SaveNote: (state) =>{
+      writeFileSync(state.getters.NotePath, state.getters.Note.content);
     },
     RenameNote: (state, name) =>{
-      console.log(name);
       renameSync(state.getters.NotePath, path.join(state.getters.Config.notePath,name+".md"));
       state.commit("ChangeNoteName", name+".md");
     },
@@ -58,7 +58,6 @@ export default new Vuex.Store({
       state.commit("ChangeNoteText", "# Welcome to your new note!\nLet's write something awesome."); 
     },
     DeleteNote: (state) => {
-      console.log(state.getters.NotePath)
       unlink(state.getters.NotePath, _ => {
         if (state.getters.Files().length != 0) {
           state.dispatch("LoadNote", state.getters.Files()[0]);

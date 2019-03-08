@@ -18,13 +18,13 @@
     >
       <option
         v-for="file in Files()"
-        :value="file.value"
-        :key="file.id"
-        :id="file.id"
-      >{{ file.value }}</option>
+        :value="file"
+        :key="file"
+        :id="file"
+      >{{ file }}</option>
     </select>
     <br/>
-    <label for="lineNumbers">Line Numbers:
+    <!-- <label for="lineNumbers">Line Numbers:
     <input type="checkbox" id="lineNumbers" v-on:change="propChange" v-model="config.editorConfig.lineNumbers"/>
     </label>
     <br/>
@@ -42,7 +42,7 @@
     <br/>
     <label for="hashtag">Hashtag:
         <input type="checkbox" id="hashtag" v-on:change="propChange" v-model="config.editorConfig.mode.hashtag"/>
-    </label>
+    </label> -->
     </form>
 </div>
 </template>
@@ -50,9 +50,9 @@
 <script lang="ts">
 import {shell} from 'electron';
 import { Component, Vue } from 'vue-property-decorator';
-import NavBar from '@/components/NavBar.vue'
+import NavBar from '@/components/NavBar.vue';
 import Configuration from '@/utility/Configuration';
-import {readdirSync} from "fs"
+import {readdirSync} from "fs";
 @Component({
   components: {
     NavBar
@@ -62,16 +62,19 @@ export default class Settings extends Vue {
   private config:Configuration = new Configuration();
 
   Files() {
-    return this.$store.getters.Files;
+    return this.$store.getters.Files();
   }
 
   openNoteDir(){
-    shell.openItem(this.config.notePath)
+    shell.openItem(this.config.notePath);
   }
+
   mounted(){
     this.config = this.$store.getters.Config;
   }
+
   propChange(){
+    this.$store.commit("UpdateConfig",this.config);
     this.config.saveConfig();
   }
 
