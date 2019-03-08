@@ -1,6 +1,7 @@
 'use strict';
 import { app, protocol, BrowserWindow, Config, screen, shell, globalShortcut, ipcMain, Tray, Menu } from 'electron';
 import {createProtocol, installVueDevtools} from 'vue-cli-plugin-electron-builder/lib';
+import { dirname } from 'path';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 // Keep a global reference of the window and tray objects else they will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -33,7 +34,6 @@ function createWindow() {
 
   win.on('close', (e) => {
     e.preventDefault();
-    console.log("test")
     win.hide();
   })
 
@@ -79,7 +79,7 @@ app.on('ready', async () => {
 })
 
 function createTray() {
-  tray = new Tray(require('path').join(__dirname, '/assets/icon.ico'));
+  tray = new Tray(require('path').join('resources', 'icon.ico'));
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Restore', click: _ => win.show() },
     { label: 'Quit', click: _ => { win.destroy(); app.quit() } }

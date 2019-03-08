@@ -3,11 +3,14 @@ module.exports = {
         electronBuilder: {
             builderOptions: {
                     "appId": "com.coreparadox.sticky",
-                    "icon": __dirname + '/src/assets/icon.ico',
+                    "icon": __dirname + '/dist_electron/resources/app.asar/icon.ico',
                     "win": {
-                        "icon": __dirname + '/src/assets/icon.ico',
+                        "icon": __dirname + '/dist_electron/resources/app.asar/icon.ico',
                         "target": "NSIS"
-                    }
+                    },
+                    "extraFiles": [
+                        "resources/**"
+                    ]
             }
         }
     }
