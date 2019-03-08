@@ -10,7 +10,6 @@
       <select
         v-model="SelectedFile"
         id="filePicker"
-        style="margin-left:20px;"
         name="selectedFile"
       >
         <option
@@ -20,12 +19,16 @@
           :id="file"
         >{{ file }}</option>
       </select>
+      <span>
       <a v-on:click="newNote()">
         <i class="fas fa-file-medical"></i>
       </a>
+      </span>
+      <span>
       <a v-on:click="deleteNote()">
         <i class="fas fa-trash"></i>
       </a>
+      </span>
     </NavBar>
     <CodeMirrorEditor v-on:finished="handleClose()" v-on:fileLoaded="setFileName"></CodeMirrorEditor>
   </div>
@@ -51,23 +54,23 @@ export default class Home extends Vue {
   private configuration = this.$store.getters.Config;
   
   Files(){
-    console.log("Getting List");
-    return this.$store.getters.Files()
+    return this.$store.getters.Files();
   }
   
   set SelectedFile(value){
-    this.changeFile(value)
+    this.changeFile(value);
   }
+  
   get SelectedFile(){
     return this.$store.getters.Note.name;
   }
 
   RenameFile(e) {
-    this.$store.dispatch("RenameNote", e.target.value);
+    var val = e.target.value.replace(".md","");
+    this.$store.dispatch("RenameNote", val);
   }
 
   changeFile(value) {
-    console.log(value);
     this.$store.dispatch("LoadNote", value);
   }
 
@@ -76,9 +79,11 @@ export default class Home extends Vue {
   }
 
   deleteNote() {
-    confirm(`This will permantly delete "${this.SelectedFile}". Continue?`);
-    this.$store.dispatch("DeleteNote");
-    this.SelectedFile = this.$store.getters.Note.name;
+    var shouldDelete = confirm(`This will permantly delete "${this.SelectedFile}". Continue?`);
+    if(shouldDelete){
+      this.$store.dispatch("DeleteNote");
+      this.SelectedFile = this.$store.getters.Note.name;
+    }
   }
 
   setFileName(fileName) {

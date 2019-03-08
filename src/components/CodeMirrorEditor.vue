@@ -2,27 +2,27 @@
   <div class="editor">
     <codemirror
       ref="cm"
-      v-model="text"
+      v-model="editorText"
       :hidden="!editorVisible"
       :options="editorOptions"
-      @blur="onCmBlur"
+      @blur="ToggleMdState"
       @focus="onCmFocus"
       @ready="onCmReady"
     />
     <div :hidden="editorVisible" id="renderContainer">
-      <VueShowdown :extensions="[enableCheckBoxExt]" :markdown="text"/>
+      <VueShowdown :extensions="[enableCheckBoxExt]" :markdown="editorText"/>
     </div>
   </div>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { codemirror } from "vue-codemirror";
+import {writeFile} from "fs";
 import "codemirror/lib/codemirror.css";
 import "codemirror/mode/gfm/gfm.js";
 import "codemirror/addon/edit/continuelist.js";
 import VueShowdown from "vue-showdown";
-import { clearTimeout } from "timers";
-import { constants } from 'http2';
+import "../utility/Extensions.ts";
 
 var myext2 = {
   type: "lang",
@@ -42,7 +42,8 @@ Vue.use(VueShowdown, {
   }
 })
 export default class CodeMirrorEditor extends Vue {
-  private cm;
+  private internalEditor;
+  private saveWatcher;
   private readonly editorOptions = {
     lineNumbers: false,
     mode: {
@@ -56,7 +57,7 @@ export default class CodeMirrorEditor extends Vue {
     },
     extraKeys: { Enter: "newlineAndIndentContinueMarkdownList" }
   };
-
+  private editorVisible = false;
   private enableCheckBoxExt = () => {
     var c = 0;
     return [
@@ -78,55 +79,88 @@ export default class CodeMirrorEditor extends Vue {
     ];
   };
 
-  public text = "- [ ] test\n- [ ] test2\nblah blah\n- [ ] test\n- [ ] test2";
-
   public get editorText() {
-    return this.text;
+    return this.$store.getters.Note.content;
   }
+  
   public set editorText(text) {
-    this.text = text;
+    this.$store.commit("ChangeNoteText", text); 
   }
-  private editorVisible = true;
+
+  destroyed() {
+    document.removeChild(document.getElementsByClassName("CodeMirror")[0])
+    this.internalEditor = null;
+    clearInterval(this.saveWatcher);
+  }
+
+  private Save(handler: ((err: Error) => void)) {
+    writeFile(this.$store.getters.NotePath, this.internalEditor.getValue(), handler);
+  }
+
+  private StartSaveWatch() {
+    if (this.saveWatcher) clearInterval(this.saveWatcher);
+    this.saveWatcher = setInterval(_ => {
+      if (this.internalEditor !== null && !this.internalEditor.doc.isClean()){
+        this.$store.dispatch("SaveNote");
+        this.internalEditor.doc.markClean();
+      }
+    }, 5000);
+  }
 
   onCmReady(cm) {
-    this.cm = cm;
+    this.internalEditor = cm;
   }
 
   mounted() {
-    document.addEventListener(
-      "click",
+    document.addEventListener("click",
       e => {
         var target = <any>e.target;
-        if (target.type == "checkbox") {
-          var i = -1;
-          this.editorText = this.editorText.replace(/\[[\sxX]\]/g, match => {
-              i++;
-              return i == target.id.replace("checkbox-","") ? 
-                match.replace(/\[[\sxX]\]/g, target.checked ? "[x]" : "[ ]") : match;
-          });
-        }
-        else if(!target.className.includes("cm") && !target.className.includes("CodeMirror")){
-          console.log(target.className)
-          this.onCmBlur();
+        if(target.isEqualOrDescendantById("renderContainer")){
+          if (target.type == "checkbox") {         
+            var i = -1;
+            this.editorText = this.editorText.replace(/\[[\sxX]\]/g, match => {
+                i++;
+                return i == target.id.replace("checkbox-","") ? 
+                  match.replace(/\[[\sxX]\]/g, target.checked ? "[x]" : "[ ]") : match;
+            });
+          }
+          else{
+            this.ToggleMdState();
+          }
         }
       },
       false
     );
+    this.StartSaveWatch()
+    this.$root.$on("closing", _ =>{
+      this.$store.dispatch("SaveNote");
+      this.$emit("finished");
+    })
+    this.$store.dispatch("LoadNote",this.$store.getters.Config.defaultNote);
+    require('electron').remote.ipcMain.on("FocusEditor",_=>{
+        this.editorVisible = true;
+        this.focusEditor();
+    })
   }
 
-  onCmFocus() {
-    this.cm.setCursor(this.cm.lineCount(), 0);
+
+
+  public onCmFocus() {
+    this.internalEditor.doc.setValue(this.internalEditor.doc.getValue() || "# Title");
+    this.internalEditor.setCursor(this.internalEditor.lineCount(), 0);
   }
 
-  onCmBlur() {
+  public ToggleMdState() {
     this.editorVisible = !this.editorVisible;
     if (this.editorVisible) {
-      var timeout = setTimeout(() => {
-        console.log("focused");
-        this.cm.focus();
-      }, 100);
-      clearTimeout(timeout);
+        this.focusEditor();
     }
+  }
+
+  private focusEditor(){
+      setTimeout(() => {
+        this.internalEditor.focus();
+      }, 100);
   }
 }
 </script>

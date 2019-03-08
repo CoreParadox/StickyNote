@@ -1,21 +1,18 @@
-'use strict'
-
-import { app, protocol, BrowserWindow, Config, screen, shell } from 'electron'
-import {
-  createProtocol,
-  installVueDevtools
-} from 'vue-cli-plugin-electron-builder/lib'
-const isDevelopment = process.env.NODE_ENV !== 'production'
-// Keep a global reference of the window object, if you don't, the window will
+'use strict';
+import { app, protocol, BrowserWindow, Config, screen, shell, globalShortcut, ipcMain, Tray, Menu } from 'electron';
+import {createProtocol, installVueDevtools} from 'vue-cli-plugin-electron-builder/lib';
+const isDevelopment = process.env.NODE_ENV !== 'production';
+// Keep a global reference of the window and tray objects else they will
 // be closed automatically when the JavaScript object is garbage collected.
-let win;
+let win: BrowserWindow;
+let tray: Tray;
 
-// Standard scheme must be registered before the app is ready
 protocol.registerStandardSchemes(['app'], { secure: true })
+
 function createWindow() {
-  // Create the browser window.
+
   win = new BrowserWindow({
-    minWidth: 230,
+    minWidth: 265,
     width: 400,
     height: 400,
     minHeight: 400,
@@ -26,93 +23,104 @@ function createWindow() {
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
-    // Load the url of the dev server if in development mode
-    win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
-    if (!process.env.IS_TEST) win.webContents.openDevTools()
-  } else {
-    createProtocol('app')
-    // Load the index.html when not in development
-    win.loadURL('app://./index.html')
+    win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string);
+    if (!process.env.IS_TEST) win.webContents.openDevTools();
+  } 
+  else {
+    createProtocol('app');
+    win.loadURL('app://./index.html');
   }
 
-  win.on('closed', () => {
-    win = null
+  win.on('close', (e) => {
+    e.preventDefault();
+    console.log("test")
+    win.hide();
   })
 
-  win.webContents.on('new-window', function(e, url){
+  win.on('closed', (e) => {
+    (<any>win) = null;
+  })
+
+  win.webContents.on('new-window', function (e, url) {
     e.preventDefault();
     shell.openExternal(url);
- });
-
+  });
 }
 
-
-// Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit()
+    app.quit();
   }
 })
 
 app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (win === null) {
-    createWindow()
+    createWindow();
   }
 })
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    await installVueDevtools()
+    await installVueDevtools();
   }
+  globalShortcut.register('CommandOrControl+Shift+A', () => {
+    if (win.isFocused() && !win.isAlwaysOnTop()) {
+      win.minimize();
+    } else {
+      win.restore();
+      win.focus();
+      ipcMain.emit("FocusEditor");
+      moveWindow();
+    }
+  })
+  createTray()
   createWindow();
   moveWindow();
 })
 
+function createTray() {
+  tray = new Tray(require('path').join(__dirname, '/assets/icon.ico'));
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Restore', click: _ => win.show() },
+    { label: 'Quit', click: _ => { win.destroy(); app.quit() } }
+  ])
+  tray.setContextMenu(contextMenu);
+}
+
 var locked = app.requestSingleInstanceLock();
 if (!locked) {
-  app.quit()
+  app.quit();
 } else {
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    // Someone tried to run a second instance, we should focus our window.
+  app.on('second-instance', _ => {
     if (win) {
-      if (win.isMinimized()) win.restore()
+      if (win.isMinimized()) win.restore();
       moveWindow();
-      win.focus()
+      win.focus();
     }
   })
 }
 
-function moveWindow(){
-
+function moveWindow() {
+  if (!win.isVisible) win.show();
   let mousePos = screen.getCursorScreenPoint();
   let bounds = screen.getDisplayNearestPoint(mousePos).bounds;
   let winBounds = win.getBounds();
-  let horizontalBleed = (bounds.x+bounds.width)-winBounds.width 
-  let verticalBleed = (bounds.y+bounds.height)-winBounds.height
-  win.setPosition(mousePos.x > horizontalBleed ? horizontalBleed : mousePos.x,mousePos.y > verticalBleed ? verticalBleed : mousePos.y)
+  let horizontalBleed = (bounds.x + bounds.width) - winBounds.width;
+  let verticalBleed = (bounds.y + bounds.height) - winBounds.height;
+  win.setPosition(mousePos.x > horizontalBleed ? horizontalBleed : mousePos.x, mousePos.y > verticalBleed ? verticalBleed : mousePos.y);
 }
-
-
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {
     process.on('message', data => {
       if (data === 'graceful-exit') {
-        app.quit()
+        app.quit();
       }
-    })
+    });
   } else {
     process.on('SIGTERM', () => {
-      app.quit()
-    })
+      app.quit();
+    });
   }
 }

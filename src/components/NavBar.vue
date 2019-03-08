@@ -1,16 +1,24 @@
 <template>
   <div id="NavBar">
     <div id="controls">
+      <span>
       <a v-on:click="close()">
         <i class="fas fa-window-close"></i>
       </a>
+      </span>
+      
       <!-- <a v-on:click="restore()"><i class="fas fa-window-restore"></i></a> -->
+      <span>
       <a v-on:click="minimize()">
         <i class="fas fa-minus-square"></i>
       </a>
+      </span>
+
+      <span>
       <a v-on:click="pin()">
         <i class="fas fa-thumbtack"></i>
       </a>
+      </span>
       <slot name="controls"></slot>
     </div>
     <slot></slot>
@@ -43,7 +51,8 @@ export default class NavBar extends Vue {
   }
 
   private close() {
-    this.$root.$emit("closing");
+    //this.$root.$emit("closing");
+    remote.getCurrentWindow().close();
   }
 }
 </script>
