@@ -13,7 +13,7 @@
     "@toast-ui/vue-editor": "^1.0.4",
     "codemirror": "^5.43.0",
     "fs-extra": "^7.0.1",
-    "hypermd": "^0.3.11",
+    "marked": "^0.7.0",
     "vue": "^2.5.21",
     "vue-class-component": "^6.0.0",
     "vue-codemirror": "^4.0.6",
@@ -27,7 +27,7 @@
     "@vue/cli-service": "^3.3.0",
     "electron": "^4.0.0",
     "typescript": "^3.0.0",
-    "vue-cli-plugin-electron-builder": "^1.0.0-rc.10",
+    "vue-cli-plugin-electron-builder": "^1.4.0",
     "vue-template-compiler": "^2.5.21"
   },
   "main": "background.js"
