@@ -10,7 +10,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "@toast-ui/vue-editor": "^1.0.4",
+    "@toast-ui/vue-editor": "^3.2.3",
     "codemirror": "^5.58.2",
     "fs-extra": "^7.0.1",
     "marked": "^4.0.10",
