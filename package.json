@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@toast-ui/vue-editor": "^1.0.4",
-    "codemirror": "^5.43.0",
+    "codemirror": "^5.58.2",
     "fs-extra": "^7.0.1",
     "marked": "^0.7.0",
     "vue": "^2.5.21",
